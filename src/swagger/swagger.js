@@ -8,7 +8,7 @@ const swaggerDocument = {
   },
   servers: [
     {
-      url: process.env.API_BASE_URL || `http://localhost:${process.env.PORT || 5000}`,
+      url: process.env.API_BASE_URL || "https://rangstone-backend-production.up.railway.app",
       description: "Configured API server"
     }
   ],

@@ -1,0 +1,40 @@
+{
+  "name": "custom-otp-auth-backend",
+  "version": "1.0.0",
+  "description": "Production-ready Node.js backend for WhatsApp OTP authentication with Firebase custom tokens.",
+  "main": "src/server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js"
+  },
+  "keywords": [
+    "express",
+    "firebase",
+    "firestore",
+    "otp",
+    "fast2sms",
+    "whatsapp",
+    "swagger",
+    "flutter"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.7.9",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "firebase-admin": "^13.0.2",
+    "helmet": "^8.0.0",
+    "swagger-autogen": "^2.23.7",
+    "swagger-ui-express": "^5.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

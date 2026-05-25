@@ -100,13 +100,13 @@ npm start
 Server runs on:
 
 ```text
-http://localhost:5000
+https://rangstone-backend.onrender.com
 ```
 
 Swagger documentation:
 
 ```text
-http://localhost:5000/api-docs
+https://rangstone-backend.onrender.com/api-docs
 ```
 
 Health check:

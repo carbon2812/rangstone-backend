@@ -22,6 +22,14 @@ const ensureFast2SmsConfig = () => {
   }
 };
 
+const ensureFast2SmsApiKey = () => {
+  if (!process.env.FAST2SMS_API_KEY) {
+    const error = new Error("Missing Fast2SMS configuration: FAST2SMS_API_KEY");
+    error.statusCode = 500;
+    throw error;
+  }
+};
+
 const sendOtpViaFast2Sms = async ({ phone, otp }) => {
   ensureFast2SmsConfig();
 
@@ -38,6 +46,22 @@ const sendOtpViaFast2Sms = async ({ phone, otp }) => {
       phone_number_id: process.env.PHONE_NUMBER_ID,
       numbers: normalizePhone(phone),
       variables_values: Object.values(variables).join("|")
+    },
+    timeout: 15000
+  });
+
+  return response.data;
+};
+
+const getFast2SmsWalletBalance = async () => {
+  ensureFast2SmsApiKey();
+
+  const response = await axios.get("https://www.fast2sms.com/dev/wallet", {
+    headers: {
+      accept: "application/json"
+    },
+    params: {
+      authorization: process.env.FAST2SMS_API_KEY
     },
     timeout: 15000
   });
@@ -114,6 +138,7 @@ const verifyStoredOtp = async ({ phone, otp }) => {
 module.exports = {
   createAndSendOtp,
   verifyStoredOtp,
+  getFast2SmsWalletBalance,
   normalizePhone,
   buildOtpDocId
 };

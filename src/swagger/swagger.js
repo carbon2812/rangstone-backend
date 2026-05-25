@@ -118,6 +118,39 @@ const swaggerDocument = {
           }
         }
       }
+    },
+    "/api/auth/wallet": {
+      get: {
+        tags: ["Authentication"],
+        summary: "Get Fast2SMS wallet balance",
+        description: "Fetches the current Fast2SMS wallet balance using the configured API key.",
+        responses: {
+          200: {
+            description: "Fast2SMS wallet balance fetched successfully",
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/WalletBalanceResponse"
+                },
+                example: {
+                  success: true,
+                  message: "Fast2SMS wallet balance fetched successfully",
+                  wallet: {
+                    return: true,
+                    wallet: "100.00"
+                  }
+                }
+              }
+            }
+          },
+          429: {
+            $ref: "#/components/responses/TooManyRequests"
+          },
+          500: {
+            $ref: "#/components/responses/InternalServerError"
+          }
+        }
+      }
     }
   },
   components: {
@@ -181,6 +214,23 @@ const swaggerDocument = {
           uid: {
             type: "string",
             example: "phone_7376263360"
+          }
+        }
+      },
+      WalletBalanceResponse: {
+        type: "object",
+        properties: {
+          success: {
+            type: "boolean",
+            example: true
+          },
+          message: {
+            type: "string",
+            example: "Fast2SMS wallet balance fetched successfully"
+          },
+          wallet: {
+            type: "object",
+            description: "Raw Fast2SMS wallet API response."
           }
         }
       },

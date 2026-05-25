@@ -1,5 +1,10 @@
 const { ensureFirebase } = require("../config/firebase");
-const { createAndSendOtp, verifyStoredOtp, normalizePhone } = require("../services/otpService");
+const {
+  createAndSendOtp,
+  verifyStoredOtp,
+  getFast2SmsWalletBalance,
+  normalizePhone
+} = require("../services/otpService");
 
 const isValidPhone = (phone) => /^\d{10,15}$/.test(normalizePhone(phone));
 const isValidOtp = (otp) => /^\d{4,8}$/.test(String(otp || ""));
@@ -69,7 +74,22 @@ const verifyOtp = async (req, res, next) => {
   }
 };
 
+const getWalletBalance = async (req, res, next) => {
+  try {
+    const wallet = await getFast2SmsWalletBalance();
+
+    return res.status(200).json({
+      success: true,
+      message: "Fast2SMS wallet balance fetched successfully",
+      wallet
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
 module.exports = {
   sendOtp,
-  verifyOtp
+  verifyOtp,
+  getWalletBalance
 };

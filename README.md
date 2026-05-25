@@ -198,6 +198,25 @@ Response:
 
 After successful verification, the OTP document is deleted from Firestore.
 
+### Get Fast2SMS Wallet Balance
+
+```http
+GET /api/auth/wallet
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "message": "Fast2SMS wallet balance fetched successfully",
+  "wallet": {
+    "return": true,
+    "wallet": "100.00"
+  }
+}
+```
+
 ## Flutter Login Example
 
 Use the `firebaseToken` returned by `/api/auth/verify-otp`:

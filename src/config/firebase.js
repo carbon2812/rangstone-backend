@@ -16,17 +16,67 @@ const isPlaceholderServiceAccount = (serviceAccount) => {
 };
 
 const parseServiceAccountFromEnv = () => {
-  if (!process.env.FIREBASE_SERVICE_ACCOUNT_JSON) {
+  const serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
+
+  if (!serviceAccountJson) {
     return null;
   }
 
-  const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
+  const serviceAccount = JSON.parse(serviceAccountJson);
 
   if (serviceAccount.private_key) {
     serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, "\n");
   }
 
   return serviceAccount;
+};
+
+const parseServiceAccountFromBase64Env = () => {
+  const serviceAccountBase64 = process.env.FIREBASE_SERVICE_ACCOUNT_BASE64;
+
+  if (!serviceAccountBase64) {
+    return null;
+  }
+
+  const serviceAccount = JSON.parse(
+    Buffer.from(serviceAccountBase64, "base64").toString("utf8")
+  );
+
+  if (serviceAccount.private_key) {
+    serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, "\n");
+  }
+
+  return serviceAccount;
+};
+
+const parseServiceAccountFromFields = () => {
+  const {
+    FIREBASE_CLIENT_EMAIL,
+    FIREBASE_PRIVATE_KEY,
+    FIREBASE_PROJECT_ID
+  } = process.env;
+
+  if (!FIREBASE_CLIENT_EMAIL && !FIREBASE_PRIVATE_KEY) {
+    return null;
+  }
+
+  const missing = [];
+
+  if (!FIREBASE_PROJECT_ID) missing.push("FIREBASE_PROJECT_ID");
+  if (!FIREBASE_CLIENT_EMAIL) missing.push("FIREBASE_CLIENT_EMAIL");
+  if (!FIREBASE_PRIVATE_KEY) missing.push("FIREBASE_PRIVATE_KEY");
+
+  if (missing.length) {
+    throw createFirebaseConfigError(
+      `Missing Firebase service account fields: ${missing.join(", ")}.`
+    );
+  }
+
+  return {
+    project_id: FIREBASE_PROJECT_ID,
+    client_email: FIREBASE_CLIENT_EMAIL,
+    private_key: FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n")
+  };
 };
 
 const parseServiceAccountFromFile = () => {
@@ -47,7 +97,11 @@ const parseServiceAccountFromFile = () => {
   return JSON.parse(fs.readFileSync(resolvedPath, "utf8"));
 };
 
-const getServiceAccount = () => parseServiceAccountFromEnv() || parseServiceAccountFromFile();
+const getServiceAccount = () =>
+  parseServiceAccountFromEnv() ||
+  parseServiceAccountFromBase64Env() ||
+  parseServiceAccountFromFields() ||
+  parseServiceAccountFromFile();
 
 const initializeFirebase = () => {
   if (admin.apps.length) {
@@ -59,7 +113,7 @@ const initializeFirebase = () => {
 
   if (!serviceAccount) {
     throw createFirebaseConfigError(
-      "Firebase service account is not configured. Set FIREBASE_SERVICE_ACCOUNT_PATH or FIREBASE_SERVICE_ACCOUNT_JSON."
+      "Firebase service account is not configured. Set FIREBASE_SERVICE_ACCOUNT_JSON, FIREBASE_SERVICE_ACCOUNT_BASE64, FIREBASE_CLIENT_EMAIL/FIREBASE_PRIVATE_KEY/FIREBASE_PROJECT_ID, or FIREBASE_SERVICE_ACCOUNT_PATH."
     );
   }
 

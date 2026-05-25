@@ -26,6 +26,10 @@ PORT=5000
 NODE_ENV=development
 API_BASE_URL=http://localhost:5000
 FIREBASE_SERVICE_ACCOUNT_PATH=./firebase-service-account.json
+FIREBASE_SERVICE_ACCOUNT_JSON=
+FIREBASE_SERVICE_ACCOUNT_BASE64=
+FIREBASE_CLIENT_EMAIL=
+FIREBASE_PRIVATE_KEY=
 FAST2SMS_API_KEY=
 MESSAGE_ID=
 PHONE_NUMBER_ID=
@@ -51,6 +55,30 @@ OTP_VERIFY_RATE_LIMIT_MAX_REQUESTS=10
 5. Generate a new private key.
 6. Replace `firebase-service-account.json` with the downloaded service account file.
 7. Create a Firestore database.
+
+For local development, `FIREBASE_SERVICE_ACCOUNT_PATH=./firebase-service-account.json`
+is the simplest option. For Render, do not rely on that local file unless you
+upload it as a secret file. Add one of these environment variable options in
+Render instead:
+
+- `FIREBASE_SERVICE_ACCOUNT_JSON`: the whole Firebase service account JSON on one line.
+- `FIREBASE_SERVICE_ACCOUNT_BASE64`: base64 of the whole service account JSON.
+- `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, and `FIREBASE_PRIVATE_KEY`: individual fields from the service account. Keep the private key newlines as `\n` if Render stores it on one line.
+
+On Windows PowerShell, you can generate the base64 value from your local file:
+
+```powershell
+[Convert]::ToBase64String([IO.File]::ReadAllBytes("firebase-service-account.json"))
+```
+
+After updating Render environment variables, redeploy and check:
+
+```text
+GET https://rangstone-backend.onrender.com/health
+```
+
+The response should include `"firebase":{"configured":true}` before
+`POST /api/auth/send-otp` can succeed.
 
 This backend creates Firebase custom tokens with:
 
@@ -231,6 +259,7 @@ Set `TRUST_PROXY=true` when deploying behind a trusted reverse proxy such as Ngi
 ## Production Notes
 
 - Keep `.env` and `firebase-service-account.json` out of source control.
+- Configure Firebase credentials in Render environment variables or a Render secret file.
 - Use HTTPS in production.
 - Set `NODE_ENV=production`.
 - Restrict CORS to your app or trusted domains when deploying.

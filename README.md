@@ -10,6 +10,7 @@ Production-ready Node.js backend for Rangstone Tourism using Express, PostgreSQL
 - Bookings: package, hotel, and vehicle bookings, ticket generation, cancellation, booking history.
 - Captains: assigned trips, ticket verification, boarded/not-boarded marking.
 - Agents: referral code, bookings, commission history, monthly payout calculation.
+- Agent Management: per-agent booking permissions, per-service percentage/fixed commissions, wallets, commission transactions, payouts, and agent/admin dashboards.
 - Hotels: hotel CRUD, rooms, room photos, booking support.
 - Vehicles: car, bike, scooter rental CRUD, booking and rent calculation.
 - Payments: Razorpay order creation, verification, transactions, refunds.
@@ -99,6 +100,36 @@ Change these values in `.env` before production.
 - `npm run db:seed`: seed roles and super admin.
 - `npm run db:studio`: open Prisma Studio.
 - `npm run postman`: generate `Rangstone-Tourism.postman_collection.json` from Swagger paths.
+
+## Agent Permission & Commission APIs
+
+Admin routes:
+
+```text
+GET    /api/admin/agents
+GET    /api/admin/agents/:id
+GET    /api/admin/agents/:id/permissions
+PUT    /api/admin/agents/:id/permissions
+GET    /api/admin/agents/:id/commission-rules
+PUT    /api/admin/agents/:id/commission-rules
+GET    /api/admin/agents/:id/wallet
+GET    /api/admin/agents/:id/transactions
+GET    /api/admin/payouts
+POST   /api/admin/payouts
+PATCH  /api/admin/payouts/:id/approve
+PATCH  /api/admin/payouts/:id/pay
+```
+
+Agent routes:
+
+```text
+GET /api/agent/dashboard
+GET /api/agent/wallet
+GET /api/agent/commission-history
+GET /api/agent/payout-history
+```
+
+When an `AGENT_VENDOR` creates a booking, the backend checks `agent_permissions` first. If allowed, it creates a pending commission transaction and increments the agent wallet pending amount. When the booking is confirmed, the commission moves from pending balance to available balance.
 
 ## Security Notes
 

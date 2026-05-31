@@ -112,7 +112,9 @@ module.exports = {
     { name: "Vehicles" },
     { name: "Payments" },
     { name: "Reviews" },
-    { name: "Dashboard" }
+    { name: "Dashboard" },
+    { name: "Agent Admin" },
+    { name: "Agent Portal" }
   ],
   paths: {
     "/api/auth/send-otp": {
@@ -291,6 +293,51 @@ module.exports = {
     },
     "/api/dashboard/revenue-graph": {
       get: { tags: ["Dashboard"], summary: "Daily revenue graph data", security: auth, responses: { 200: successResponse("Revenue graph fetched successfully", []) } }
+    },
+    "/api/admin/dashboard/agents": {
+      get: { tags: ["Agent Admin"], summary: "Agent admin dashboard metrics", security: auth, responses: { 200: successResponse("Agent admin dashboard metrics fetched successfully") } }
+    },
+    "/api/admin/agents": {
+      get: { tags: ["Agent Admin"], summary: "List all agents", security: auth, responses: { 200: successResponse("Agents fetched successfully", []) } }
+    },
+    "/api/admin/agents/{id}": {
+      get: { tags: ["Agent Admin"], summary: "Get agent details", security: auth, parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }], responses: { 200: successResponse("Agent fetched successfully") } }
+    },
+    "/api/admin/agents/{id}/permissions": {
+      get: { tags: ["Agent Admin"], summary: "Get agent booking permissions", security: auth, parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }], responses: { 200: successResponse("Agent permissions fetched successfully") } },
+      put: { tags: ["Agent Admin"], summary: "Update agent booking permissions", security: auth, parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }], requestBody: jsonBody({ canBookPackages: true, canBookHotels: true, canBookCars: false, canBookBikes: false }), responses: { 200: successResponse("Agent permissions updated successfully") } }
+    },
+    "/api/admin/agents/{id}/commission-rules": {
+      get: { tags: ["Agent Admin"], summary: "Get agent commission rules", security: auth, parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }], responses: { 200: successResponse("Agent commission rules fetched successfully") } },
+      put: { tags: ["Agent Admin"], summary: "Update per-service commission rules", security: auth, parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }], requestBody: jsonBody({ packageCommissionType: "PERCENTAGE", packageCommissionValue: 10, hotelCommissionType: "FIXED", hotelCommissionValue: 500, carCommissionType: "PERCENTAGE", carCommissionValue: 8, bikeCommissionType: "FIXED", bikeCommissionValue: 100 }), responses: { 200: successResponse("Agent commission rules updated successfully") } }
+    },
+    "/api/admin/agents/{id}/wallet": {
+      get: { tags: ["Agent Admin"], summary: "Get agent wallet", security: auth, parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }], responses: { 200: successResponse("Agent wallet fetched successfully") } }
+    },
+    "/api/admin/agents/{id}/transactions": {
+      get: { tags: ["Agent Admin"], summary: "Get agent commission transactions", security: auth, parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }], responses: { 200: successResponse("Agent commission transactions fetched successfully", []) } }
+    },
+    "/api/admin/payouts": {
+      get: { tags: ["Agent Admin"], summary: "List payouts", security: auth, responses: { 200: successResponse("Agent payouts fetched successfully", []) } },
+      post: { tags: ["Agent Admin"], summary: "Create payout request", security: auth, requestBody: jsonBody({ agentId: "agent_id", amount: 5000, payoutMonth: "2026-05", remarks: "May payout" }), responses: { 201: successResponse("Agent payout created successfully") } }
+    },
+    "/api/admin/payouts/{id}/approve": {
+      patch: { tags: ["Agent Admin"], summary: "Approve payout", security: auth, parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }], requestBody: jsonBody({ remarks: "Approved" }), responses: { 200: successResponse("Agent payout approved successfully") } }
+    },
+    "/api/admin/payouts/{id}/pay": {
+      patch: { tags: ["Agent Admin"], summary: "Mark payout as paid", security: auth, parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }], requestBody: jsonBody({ remarks: "Bank transfer completed" }), responses: { 200: successResponse("Agent payout marked as paid successfully") } }
+    },
+    "/api/agent/dashboard": {
+      get: { tags: ["Agent Portal"], summary: "Agent dashboard metrics", security: auth, responses: { 200: successResponse("Agent dashboard fetched successfully") } }
+    },
+    "/api/agent/wallet": {
+      get: { tags: ["Agent Portal"], summary: "Agent wallet", security: auth, responses: { 200: successResponse("Agent wallet fetched successfully") } }
+    },
+    "/api/agent/commission-history": {
+      get: { tags: ["Agent Portal"], summary: "Agent commission history", security: auth, responses: { 200: successResponse("Agent commission history fetched successfully", []) } }
+    },
+    "/api/agent/payout-history": {
+      get: { tags: ["Agent Portal"], summary: "Agent payout history", security: auth, responses: { 200: successResponse("Agent payout history fetched successfully", []) } }
     }
   },
   components: {

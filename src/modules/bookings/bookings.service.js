@@ -1,8 +1,13 @@
 const prisma = require("../../config/prisma");
 const { AppError } = require("../../utils/errors");
 const { bookingCode, ticketNumber } = require("../../utils/codeGenerator");
+const {
+  assertAgentCanBook,
+  createCommissionForBooking,
+  approveCommissionTransaction
+} = require("../agentManagement/agentManagement.service");
 
-const createPackageBooking = async (userId, payload) => {
+const createPackageBooking = async (user, payload) => {
   const packageDate = await prisma.packageDate.findUnique({
     where: { id: payload.packageDateId },
     include: { package: true }
@@ -15,13 +20,19 @@ const createPackageBooking = async (userId, payload) => {
   const totalAmount = price * payload.seatsBooked;
 
   return prisma.$transaction(async (tx) => {
+    const agentContext = await assertAgentCanBook({
+      user,
+      bookingType: "PACKAGE",
+      tx
+    });
+
     const booking = await tx.packageBooking.create({
       data: {
         bookingCode: bookingCode("PKG"),
         ticketNumber: ticketNumber(),
-        userId,
+        userId: user.id,
         packageDateId: payload.packageDateId,
-        referralCode: payload.referralCode,
+        referralCode: payload.referralCode || agentContext?.agent?.referralCode,
         seatsBooked: payload.seatsBooked,
         totalAmount
       },
@@ -33,25 +44,20 @@ const createPackageBooking = async (userId, payload) => {
       data: { seatsAvailable: { decrement: payload.seatsBooked } }
     });
 
-    if (payload.referralCode) {
-      const agent = await tx.agent.findUnique({ where: { referralCode: payload.referralCode } });
-      if (agent) {
-        await tx.agentCommission.create({
-          data: {
-            agentId: agent.id,
-            bookingId: booking.id,
-            bookingType: "PACKAGE",
-            amount: totalAmount * Number(agent.commissionRate)
-          }
-        });
-      }
-    }
+    await createCommissionForBooking({
+      agent: agentContext?.agent,
+      config: agentContext?.config,
+      bookingId: booking.id,
+      bookingType: "PACKAGE",
+      bookingAmount: totalAmount,
+      tx
+    });
 
     return booking;
   });
 };
 
-const createHotelBooking = async (userId, payload) => {
+const createHotelBooking = async (user, payload) => {
   const room = await prisma.hotelRoom.findUnique({
     where: { id: payload.roomId },
     include: { hotel: true }
@@ -64,21 +70,42 @@ const createHotelBooking = async (userId, payload) => {
     Math.ceil((new Date(payload.checkOutDate) - new Date(payload.checkInDate)) / (24 * 60 * 60 * 1000))
   );
 
-  return prisma.hotelBooking.create({
-    data: {
-      bookingCode: bookingCode("HTL"),
-      userId,
-      hotelId: room.hotelId,
-      roomId: room.id,
-      checkInDate: new Date(payload.checkInDate),
-      checkOutDate: new Date(payload.checkOutDate),
-      totalAmount: Number(room.price) * nights
-    },
-    include: { hotel: true, room: true }
+  const totalAmount = Number(room.price) * nights;
+
+  return prisma.$transaction(async (tx) => {
+    const agentContext = await assertAgentCanBook({
+      user,
+      bookingType: "HOTEL",
+      tx
+    });
+
+    const booking = await tx.hotelBooking.create({
+      data: {
+        bookingCode: bookingCode("HTL"),
+        userId: user.id,
+        hotelId: room.hotelId,
+        roomId: room.id,
+        checkInDate: new Date(payload.checkInDate),
+        checkOutDate: new Date(payload.checkOutDate),
+        totalAmount
+      },
+      include: { hotel: true, room: true }
+    });
+
+    await createCommissionForBooking({
+      agent: agentContext?.agent,
+      config: agentContext?.config,
+      bookingId: booking.id,
+      bookingType: "HOTEL",
+      bookingAmount: totalAmount,
+      tx
+    });
+
+    return booking;
   });
 };
 
-const createVehicleBooking = async (userId, payload) => {
+const createVehicleBooking = async (user, payload) => {
   const vehicle = await prisma.vehicle.findUnique({ where: { id: payload.vehicleId } });
   if (!vehicle) throw new AppError("Vehicle not found.", 404);
 
@@ -95,22 +122,45 @@ const createVehicleBooking = async (userId, payload) => {
   const rentAmount = units * unitPrice;
   const securityDeposit = Number(vehicle.securityDeposit);
 
-  return prisma.vehicleBooking.create({
-    data: {
-      bookingCode: bookingCode("VEH"),
-      userId,
-      vehicleId: vehicle.id,
-      pickupLocation: payload.pickupLocation,
-      dropLocation: payload.dropLocation,
-      startDateTime: start,
-      endDateTime: end,
-      rentalType: payload.rentalType,
-      rentAmount,
-      securityDeposit,
-      totalAmount: rentAmount + securityDeposit,
-      cancellationPolicy: payload.cancellationPolicy
-    },
-    include: { vehicle: true }
+  const totalAmount = rentAmount + securityDeposit;
+  const bookingType = vehicle.type === "CAR" ? "CAR" : "BIKE";
+
+  return prisma.$transaction(async (tx) => {
+    const agentContext = await assertAgentCanBook({
+      user,
+      bookingType: "VEHICLE",
+      vehicleType: vehicle.type,
+      tx
+    });
+
+    const booking = await tx.vehicleBooking.create({
+      data: {
+        bookingCode: bookingCode("VEH"),
+        userId: user.id,
+        vehicleId: vehicle.id,
+        pickupLocation: payload.pickupLocation,
+        dropLocation: payload.dropLocation,
+        startDateTime: start,
+        endDateTime: end,
+        rentalType: payload.rentalType,
+        rentAmount,
+        securityDeposit,
+        totalAmount,
+        cancellationPolicy: payload.cancellationPolicy
+      },
+      include: { vehicle: true }
+    });
+
+    await createCommissionForBooking({
+      agent: agentContext?.agent,
+      config: agentContext?.config,
+      bookingId: booking.id,
+      bookingType,
+      bookingAmount: totalAmount,
+      tx
+    });
+
+    return booking;
   });
 };
 
@@ -134,9 +184,17 @@ const history = (userId) =>
   ]).then(([packages, hotels, vehicles]) => ({ packages, hotels, vehicles }));
 
 const updatePackageBookingStatus = (id, bookingStatus) =>
-  prisma.packageBooking.update({
-    where: { id },
-    data: { bookingStatus }
+  prisma.$transaction(async (tx) => {
+    const booking = await tx.packageBooking.update({
+      where: { id },
+      data: { bookingStatus }
+    });
+
+    if (bookingStatus === "CONFIRMED") {
+      await approveCommissionTransaction({ bookingId: id, tx });
+    }
+
+    return booking;
   });
 
 const cancelPackageBooking = (id) =>

@@ -84,6 +84,18 @@ enum RefundStatus {
   FAILED
 }
 
+enum CommissionType {
+  PERCENTAGE
+  FIXED
+}
+
+enum CommissionTransactionStatus {
+  PENDING
+  APPROVED
+  PAID
+  REJECTED
+}
+
 enum ReviewTargetType {
   PACKAGE
   HOTEL
@@ -102,19 +114,19 @@ model Role {
 }
 
 model User {
-  id              String    @id @default(cuid())
-  phoneNumber     String    @unique @map("phone_number")
-  email           String?   @unique
+  id              String           @id @default(cuid())
+  phoneNumber     String           @unique @map("phone_number")
+  email           String?          @unique
   password        String?
-  firstName       String?   @map("first_name")
-  lastName        String?   @map("last_name")
-  profilePicture  String?   @map("profile_picture")
-  isNewUser       Boolean   @default(true) @map("is_new_user")
-  profileRequired Boolean   @default(true) @map("profile_required")
-  isBlocked       Boolean   @default(false) @map("is_blocked")
-  isActive        Boolean   @default(true) @map("is_active")
-  roleId          String    @map("role_id")
-  role            Role      @relation(fields: [roleId], references: [id])
+  firstName       String?          @map("first_name")
+  lastName        String?          @map("last_name")
+  profilePicture  String?          @map("profile_picture")
+  isNewUser       Boolean          @default(true) @map("is_new_user")
+  profileRequired Boolean          @default(true) @map("profile_required")
+  isBlocked       Boolean          @default(false) @map("is_blocked")
+  isActive        Boolean          @default(true) @map("is_active")
+  roleId          String           @map("role_id")
+  role            Role             @relation(fields: [roleId], references: [id])
   refreshTokens   RefreshToken[]
   activityLogs    ActivityLog[]
   packageBookings PackageBooking[]
@@ -125,8 +137,8 @@ model User {
   captainProfile  Captain?
   ownedHotels     Hotel[]
   ownedVehicles   Vehicle[]
-  createdAt       DateTime  @default(now()) @map("created_at")
-  updatedAt       DateTime  @updatedAt @map("updated_at")
+  createdAt       DateTime         @default(now()) @map("created_at")
+  updatedAt       DateTime         @updatedAt @map("updated_at")
 
   @@index([roleId])
   @@index([isBlocked])
@@ -185,7 +197,7 @@ model Package {
   offerPrice   Decimal?             @map("offer_price") @db.Decimal(10, 2)
   duration     String
   seats        Int
-  status       PackageStatus         @default(ACTIVE)
+  status       PackageStatus        @default(ACTIVE)
   images       PackageImage[]
   pickupPoints PackagePickupPoint[]
   dates        PackageDate[]
@@ -235,15 +247,15 @@ model PackageDate {
 }
 
 model Captain {
-  id                  String               @id @default(cuid())
-  userId              String               @unique @map("user_id")
-  user                User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
-  licenseNumber       String?              @map("license_number")
-  experienceYears     Int?                 @map("experience_years")
+  id                   String               @id @default(cuid())
+  userId               String               @unique @map("user_id")
+  user                 User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  licenseNumber        String?              @map("license_number")
+  experienceYears      Int?                 @map("experience_years")
   assignedPackageDates PackageDate[]
-  ticketVerifications TicketVerification[]
-  createdAt           DateTime             @default(now()) @map("created_at")
-  updatedAt           DateTime             @updatedAt @map("updated_at")
+  ticketVerifications  TicketVerification[]
+  createdAt            DateTime             @default(now()) @map("created_at")
+  updatedAt            DateTime             @updatedAt @map("updated_at")
 
   @@map("captains")
 }
@@ -263,65 +275,118 @@ model TicketVerification {
 }
 
 model PackageBooking {
-  id            String               @id @default(cuid())
-  bookingCode   String               @unique @map("booking_code")
-  userId        String               @map("user_id")
-  user          User                 @relation(fields: [userId], references: [id])
-  packageDateId String               @map("package_date_id")
-  packageDate   PackageDate          @relation(fields: [packageDateId], references: [id])
-  referralCode  String?              @map("referral_code")
-  bookingStatus BookingStatus        @default(PENDING) @map("booking_status")
-  paymentStatus PaymentStatus        @default(PENDING) @map("payment_status")
-  totalAmount   Decimal              @map("total_amount") @db.Decimal(10, 2)
-  seatsBooked   Int                  @map("seats_booked")
-  ticketNumber  String?              @unique @map("ticket_number")
+  id            String              @id @default(cuid())
+  bookingCode   String              @unique @map("booking_code")
+  userId        String              @map("user_id")
+  user          User                @relation(fields: [userId], references: [id])
+  packageDateId String              @map("package_date_id")
+  packageDate   PackageDate         @relation(fields: [packageDateId], references: [id])
+  referralCode  String?             @map("referral_code")
+  bookingStatus BookingStatus       @default(PENDING) @map("booking_status")
+  paymentStatus PaymentStatus       @default(PENDING) @map("payment_status")
+  totalAmount   Decimal             @map("total_amount") @db.Decimal(10, 2)
+  seatsBooked   Int                 @map("seats_booked")
+  ticketNumber  String?             @unique @map("ticket_number")
   verification  TicketVerification?
   payments      Payment[]
-  createdAt     DateTime             @default(now()) @map("created_at")
-  updatedAt     DateTime             @updatedAt @map("updated_at")
+  createdAt     DateTime            @default(now()) @map("created_at")
+  updatedAt     DateTime            @updatedAt @map("updated_at")
 
   @@index([userId])
   @@map("package_bookings")
 }
 
 model Agent {
-  id             String            @id @default(cuid())
-  userId         String            @unique @map("user_id")
-  user           User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  referralCode   String            @unique @map("referral_code")
-  commissionRate Decimal           @default(0.10) @map("commission_rate") @db.Decimal(5, 2)
-  payoutDetails  Json?             @map("payout_details")
-  commissions    AgentCommission[]
-  payouts        AgentPayout[]
-  createdAt      DateTime          @default(now()) @map("created_at")
-  updatedAt      DateTime          @updatedAt @map("updated_at")
+  id                     String                       @id @default(cuid())
+  userId                 String                       @unique @map("user_id")
+  user                   User                         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  referralCode           String                       @unique @map("referral_code")
+  commissionRate         Decimal                      @default(0.10) @map("commission_rate") @db.Decimal(5, 2)
+  payoutDetails          Json?                        @map("payout_details")
+  permissions            AgentPermission?
+  commissionRule         AgentCommissionRule?
+  wallet                 AgentWallet?
+  commissionTransactions AgentCommissionTransaction[]
+  payouts                AgentPayout[]
+  createdAt              DateTime                     @default(now()) @map("created_at")
+  updatedAt              DateTime                     @updatedAt @map("updated_at")
 
   @@map("agents")
 }
 
-model AgentCommission {
-  id          String   @id @default(cuid())
-  agentId     String   @map("agent_id")
-  agent       Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
-  bookingId   String   @map("booking_id")
-  bookingType String   @map("booking_type")
-  amount      Decimal  @db.Decimal(10, 2)
-  status      String   @default("pending")
-  createdAt   DateTime @default(now()) @map("created_at")
+model AgentPermission {
+  id              String   @id @default(cuid())
+  agentId         String   @unique @map("agent_id")
+  agent           Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  canBookPackages Boolean  @default(false) @map("can_book_packages")
+  canBookHotels   Boolean  @default(false) @map("can_book_hotels")
+  canBookCars     Boolean  @default(false) @map("can_book_cars")
+  canBookBikes    Boolean  @default(false) @map("can_book_bikes")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@map("agent_permissions")
+}
+
+model AgentCommissionRule {
+  id                     String         @id @default(cuid())
+  agentId                String         @unique @map("agent_id")
+  agent                  Agent          @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  packageCommissionType  CommissionType @default(PERCENTAGE) @map("package_commission_type")
+  packageCommissionValue Decimal        @default(0) @map("package_commission_value") @db.Decimal(10, 2)
+  hotelCommissionType    CommissionType @default(PERCENTAGE) @map("hotel_commission_type")
+  hotelCommissionValue   Decimal        @default(0) @map("hotel_commission_value") @db.Decimal(10, 2)
+  carCommissionType      CommissionType @default(PERCENTAGE) @map("car_commission_type")
+  carCommissionValue     Decimal        @default(0) @map("car_commission_value") @db.Decimal(10, 2)
+  bikeCommissionType     CommissionType @default(PERCENTAGE) @map("bike_commission_type")
+  bikeCommissionValue    Decimal        @default(0) @map("bike_commission_value") @db.Decimal(10, 2)
+  createdAt              DateTime       @default(now()) @map("created_at")
+  updatedAt              DateTime       @updatedAt @map("updated_at")
+
+  @@map("agent_commission_rules")
+}
+
+model AgentWallet {
+  id               String   @id @default(cuid())
+  agentId          String   @unique @map("agent_id")
+  agent            Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  totalEarned      Decimal  @default(0) @map("total_earned") @db.Decimal(10, 2)
+  pendingAmount    Decimal  @default(0) @map("pending_amount") @db.Decimal(10, 2)
+  paidAmount       Decimal  @default(0) @map("paid_amount") @db.Decimal(10, 2)
+  availableBalance Decimal  @default(0) @map("available_balance") @db.Decimal(10, 2)
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  @@map("agent_wallets")
+}
+
+model AgentCommissionTransaction {
+  id              String                      @id @default(cuid())
+  agentId         String                      @map("agent_id")
+  agent           Agent                       @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  bookingType     String                      @map("booking_type")
+  bookingId       String                      @map("booking_id")
+  bookingAmount   Decimal                     @map("booking_amount") @db.Decimal(10, 2)
+  commissionType  CommissionType              @map("commission_type")
+  commissionValue Decimal                     @map("commission_value") @db.Decimal(10, 2)
+  earnedAmount    Decimal                     @map("earned_amount") @db.Decimal(10, 2)
+  status          CommissionTransactionStatus @default(PENDING)
+  createdAt       DateTime                    @default(now()) @map("created_at")
 
   @@index([agentId])
-  @@map("agent_commissions")
+  @@index([bookingId])
+  @@map("agent_commission_transactions")
 }
 
 model AgentPayout {
-  id        String       @id @default(cuid())
-  agentId   String       @map("agent_id")
-  agent     Agent        @relation(fields: [agentId], references: [id], onDelete: Cascade)
-  amount    Decimal      @db.Decimal(10, 2)
-  period    String
-  status    PayoutStatus @default(PENDING)
-  paidAt    DateTime?    @map("paid_at")
-  createdAt DateTime     @default(now()) @map("created_at")
+  id           String       @id @default(cuid())
+  agentId      String       @map("agent_id")
+  agent        Agent        @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  amount       Decimal      @db.Decimal(10, 2)
+  payoutMonth  String       @map("payout_month")
+  payoutStatus PayoutStatus @default(PENDING) @map("payout_status")
+  remarks      String?
+  paidAt       DateTime?    @map("paid_at")
+  createdAt    DateTime     @default(now()) @map("created_at")
 
   @@index([agentId])
   @@map("agent_payouts")
@@ -412,28 +477,28 @@ model HotelBooking {
 }
 
 model Vehicle {
-  id                 String                @id @default(cuid())
-  vendorId           String                @map("vendor_id")
-  vendor             User                  @relation(fields: [vendorId], references: [id])
+  id                 String              @id @default(cuid())
+  vendorId           String              @map("vendor_id")
+  vendor             User                @relation(fields: [vendorId], references: [id])
   type               VehicleType
   brand              String
   model              String
-  registrationNumber String                @unique @map("registration_number")
-  fuelType           String                @map("fuel_type")
-  seatingCapacity    Int                   @map("seating_capacity")
-  pricePerHour       Decimal               @map("price_per_hour") @db.Decimal(10, 2)
-  pricePerDay        Decimal               @map("price_per_day") @db.Decimal(10, 2)
-  securityDeposit    Decimal               @map("security_deposit") @db.Decimal(10, 2)
-  pickupLocation     String                @map("pickup_location")
-  dropLocation       String                @map("drop_location")
-  withDriver         Boolean               @default(false) @map("with_driver")
-  selfDrive          Boolean               @default(true) @map("self_drive")
-  availability       VehicleAvailability   @default(AVAILABLE)
+  registrationNumber String              @unique @map("registration_number")
+  fuelType           String              @map("fuel_type")
+  seatingCapacity    Int                 @map("seating_capacity")
+  pricePerHour       Decimal             @map("price_per_hour") @db.Decimal(10, 2)
+  pricePerDay        Decimal             @map("price_per_day") @db.Decimal(10, 2)
+  securityDeposit    Decimal             @map("security_deposit") @db.Decimal(10, 2)
+  pickupLocation     String              @map("pickup_location")
+  dropLocation       String              @map("drop_location")
+  withDriver         Boolean             @default(false) @map("with_driver")
+  selfDrive          Boolean             @default(true) @map("self_drive")
+  availability       VehicleAvailability @default(AVAILABLE)
   images             VehicleImage[]
   bookings           VehicleBooking[]
   reviews            Review[]
-  createdAt          DateTime              @default(now()) @map("created_at")
-  updatedAt          DateTime              @updatedAt @map("updated_at")
+  createdAt          DateTime            @default(now()) @map("created_at")
+  updatedAt          DateTime            @updatedAt @map("updated_at")
 
   @@index([vendorId])
   @@index([availability])
@@ -478,22 +543,22 @@ model VehicleBooking {
 }
 
 model Payment {
-  id               String          @id @default(cuid())
-  transactionId    String          @unique @map("transaction_id")
-  razorpayOrderId  String?         @map("razorpay_order_id")
-  razorpayPaymentId String?        @map("razorpay_payment_id")
-  amount           Decimal         @db.Decimal(10, 2)
-  currency         String          @default("INR")
-  status           PaymentStatus   @default(PENDING)
-  packageBookingId String?         @map("package_booking_id")
-  packageBooking   PackageBooking? @relation(fields: [packageBookingId], references: [id])
-  hotelBookingId   String?         @map("hotel_booking_id")
-  hotelBooking     HotelBooking?   @relation(fields: [hotelBookingId], references: [id])
-  vehicleBookingId String?         @map("vehicle_booking_id")
-  vehicleBooking   VehicleBooking? @relation(fields: [vehicleBookingId], references: [id])
-  refunds          Refund[]
-  createdAt        DateTime        @default(now()) @map("created_at")
-  updatedAt        DateTime        @updatedAt @map("updated_at")
+  id                String          @id @default(cuid())
+  transactionId     String          @unique @map("transaction_id")
+  razorpayOrderId   String?         @map("razorpay_order_id")
+  razorpayPaymentId String?         @map("razorpay_payment_id")
+  amount            Decimal         @db.Decimal(10, 2)
+  currency          String          @default("INR")
+  status            PaymentStatus   @default(PENDING)
+  packageBookingId  String?         @map("package_booking_id")
+  packageBooking    PackageBooking? @relation(fields: [packageBookingId], references: [id])
+  hotelBookingId    String?         @map("hotel_booking_id")
+  hotelBooking      HotelBooking?   @relation(fields: [hotelBookingId], references: [id])
+  vehicleBookingId  String?         @map("vehicle_booking_id")
+  vehicleBooking    VehicleBooking? @relation(fields: [vehicleBookingId], references: [id])
+  refunds           Refund[]
+  createdAt         DateTime        @default(now()) @map("created_at")
+  updatedAt         DateTime        @updatedAt @map("updated_at")
 
   @@index([packageBookingId])
   @@index([hotelBookingId])
@@ -502,33 +567,33 @@ model Payment {
 }
 
 model Refund {
-  id                String       @id @default(cuid())
-  paymentId         String       @map("payment_id")
-  payment           Payment      @relation(fields: [paymentId], references: [id], onDelete: Cascade)
-  razorpayRefundId  String?      @unique @map("razorpay_refund_id")
-  amount            Decimal      @db.Decimal(10, 2)
-  status            RefundStatus @default(PENDING)
-  createdAt         DateTime     @default(now()) @map("created_at")
+  id               String       @id @default(cuid())
+  paymentId        String       @map("payment_id")
+  payment          Payment      @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  razorpayRefundId String?      @unique @map("razorpay_refund_id")
+  amount           Decimal      @db.Decimal(10, 2)
+  status           RefundStatus @default(PENDING)
+  createdAt        DateTime     @default(now()) @map("created_at")
 
   @@map("refunds")
 }
 
 model Review {
-  id        String           @id @default(cuid())
-  userId    String           @map("user_id")
-  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  rating    Int
-  comment   String?
+  id         String           @id @default(cuid())
+  userId     String           @map("user_id")
+  user       User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rating     Int
+  comment    String?
   targetType ReviewTargetType @map("target_type")
-  packageId String?          @map("package_id")
-  package   Package?         @relation(fields: [packageId], references: [id], onDelete: Cascade)
-  hotelId   String?          @map("hotel_id")
-  hotel     Hotel?           @relation(fields: [hotelId], references: [id], onDelete: Cascade)
-  vehicleId String?          @map("vehicle_id")
-  vehicle   Vehicle?         @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
-  isHidden  Boolean          @default(false) @map("is_hidden")
-  createdAt DateTime         @default(now()) @map("created_at")
-  updatedAt DateTime         @updatedAt @map("updated_at")
+  packageId  String?          @map("package_id")
+  package    Package?         @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  hotelId    String?          @map("hotel_id")
+  hotel      Hotel?           @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  vehicleId  String?          @map("vehicle_id")
+  vehicle    Vehicle?         @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  isHidden   Boolean          @default(false) @map("is_hidden")
+  createdAt  DateTime         @default(now()) @map("created_at")
+  updatedAt  DateTime         @updatedAt @map("updated_at")
 
   @@index([userId])
   @@map("reviews")

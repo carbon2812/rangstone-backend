@@ -1,7 +1,7 @@
 {
   "name": "rangstone-tourism-backend",
   "version": "1.0.0",
-  "description": "Production-ready Node.js backend for Rangstone Tourism – travel packages, hotels, vehicle rentals, agent commissions, and Razorpay payments.",
+  "description": "Production-ready Node.js backend for Rangstone Tourism - travel packages, hotels, vehicle rentals, agent commissions, and Razorpay payments.",
   "main": "src/server.js",
   "type": "commonjs",
   "scripts": {
@@ -44,7 +44,8 @@
     "razorpay": "^2.9.6",
     "swagger-autogen": "^2.23.7",
     "swagger-ui-express": "^5.0.1",
-    "uuid": "^14.0.0"
+    "uuid": "^14.0.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "nodemon": "^3.1.9",

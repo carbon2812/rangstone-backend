@@ -1,0 +1,1469 @@
+{
+  "info": {
+    "name": "Rangstone Tourism Backend API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Send OTP",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/send-otp",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "send-otp"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Verify OTP and issue JWT tokens",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/verify-otp",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "verify-otp"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Register or complete profile",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/register",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "register"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Password login",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/login",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Rotate refresh token",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/refresh-token",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "refresh-token"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Revoke refresh token",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/logout",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "logout"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get current user profile",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/me",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "me"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Check whether user is new or existing",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/check-user",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "check-user"
+          ]
+        }
+      }
+    },
+    {
+      "name": "List users",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/users",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "users"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Create users",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/users",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "users"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get users by id",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/users/{id}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "users",
+            "{id}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Update users",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/users/{id}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "users",
+            "{id}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Delete users",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/users/{id}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "users",
+            "{id}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Block or unblock user",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/users/{id}/block",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "users",
+            "{id}",
+            "block"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Activity logs",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/users/activity-logs",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "users",
+            "activity-logs"
+          ]
+        }
+      }
+    },
+    {
+      "name": "List packages",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/packages",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "packages"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Create package with Firebase Storage images",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/packages",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "packages"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get package",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/packages/{id}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "packages",
+            "{id}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Update package",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/packages/{id}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "packages",
+            "{id}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Delete package",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/packages/{id}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "packages",
+            "{id}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Assign captain to trip date",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/packages/assign-captain",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "packages",
+            "assign-captain"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Customer or agent package booking",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/bookings/packages",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "bookings",
+            "packages"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Customer hotel booking",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/bookings/hotels",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "bookings",
+            "hotels"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Customer vehicle booking",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/bookings/vehicles",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "bookings",
+            "vehicles"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Booking history",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/bookings/history",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "bookings",
+            "history"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Captain assigned trips",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/captains/assigned-trips",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "captains",
+            "assigned-trips"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Verify or mark boarding status",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/captains/verify-ticket",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "captains",
+            "verify-ticket"
+          ]
+        }
+      }
+    },
+    {
+      "name": "List hotels",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/hotels",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "hotels"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Create hotels",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/hotels",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "hotels"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get hotels by id",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/hotels/{id}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "hotels",
+            "{id}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Update hotels",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/hotels/{id}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "hotels",
+            "{id}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Delete hotels",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/hotels/{id}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "hotels",
+            "{id}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "List vehicles",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/vehicles",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "vehicles"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Create vehicles",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/vehicles",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "vehicles"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get vehicles by id",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/vehicles/{id}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "vehicles",
+            "{id}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Update vehicles",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/vehicles/{id}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "vehicles",
+            "{id}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Delete vehicles",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/vehicles/{id}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "vehicles",
+            "{id}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Agent profile",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/agents/me",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "agents",
+            "me"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Commission history",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/agents/commissions",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "agents",
+            "commissions"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Calculate monthly payout",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/agents/payouts/calculate",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "agents",
+            "payouts",
+            "calculate"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Create Razorpay order",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/payments/razorpay/order",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "payments",
+            "razorpay",
+            "order"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Verify Razorpay payment",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/payments/razorpay/verify",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "payments",
+            "razorpay",
+            "verify"
+          ]
+        }
+      }
+    },
+    {
+      "name": "List visible reviews",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/reviews",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "reviews"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Create review",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/reviews",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "reviews"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Admin metrics",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/dashboard/overview",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "dashboard",
+            "overview"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Daily revenue graph data",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/dashboard/revenue-graph",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "dashboard",
+            "revenue-graph"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Agent admin dashboard metrics",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/admin/dashboard/agents",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "admin",
+            "dashboard",
+            "agents"
+          ]
+        }
+      }
+    },
+    {
+      "name": "List all agents",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/admin/agents",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "admin",
+            "agents"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get agent details",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/admin/agents/{id}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "admin",
+            "agents",
+            "{id}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get agent booking permissions",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/admin/agents/{id}/permissions",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "admin",
+            "agents",
+            "{id}",
+            "permissions"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Update agent booking permissions",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/admin/agents/{id}/permissions",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "admin",
+            "agents",
+            "{id}",
+            "permissions"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get agent commission rules",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/admin/agents/{id}/commission-rules",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "admin",
+            "agents",
+            "{id}",
+            "commission-rules"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Update per-service commission rules",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/admin/agents/{id}/commission-rules",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "admin",
+            "agents",
+            "{id}",
+            "commission-rules"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get agent wallet",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/admin/agents/{id}/wallet",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "admin",
+            "agents",
+            "{id}",
+            "wallet"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get agent commission transactions",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/admin/agents/{id}/transactions",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "admin",
+            "agents",
+            "{id}",
+            "transactions"
+          ]
+        }
+      }
+    },
+    {
+      "name": "List payouts",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/admin/payouts",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "admin",
+            "payouts"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Create payout request",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/admin/payouts",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "admin",
+            "payouts"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Approve payout",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/admin/payouts/{id}/approve",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "admin",
+            "payouts",
+            "{id}",
+            "approve"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Mark payout as paid",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/admin/payouts/{id}/pay",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "admin",
+            "payouts",
+            "{id}",
+            "pay"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Agent dashboard metrics",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/agent/dashboard",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "agent",
+            "dashboard"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Agent wallet",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/agent/wallet",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "agent",
+            "wallet"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Agent commission history",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/agent/commission-history",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "agent",
+            "commission-history"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Agent payout history",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/agent/payout-history",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "agent",
+            "payout-history"
+          ]
+        }
+      }
+    }
+  ]
+}

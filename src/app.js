@@ -19,6 +19,8 @@ const vehicleRoutes = require("./modules/vehicles/vehicles.routes");
 const paymentRoutes = require("./modules/payments/payments.routes");
 const reviewRoutes = require("./modules/reviews/reviews.routes");
 const dashboardRoutes = require("./modules/dashboard/dashboard.routes");
+const adminAgentRoutes = require("./modules/agentManagement/adminAgents.routes");
+const agentPortalRoutes = require("./modules/agentManagement/agentPortal.routes");
 
 const app = express();
 
@@ -54,6 +56,8 @@ app.use("/api/vehicles", vehicleRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/admin", adminAgentRoutes);
+app.use("/api/agent", agentPortalRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

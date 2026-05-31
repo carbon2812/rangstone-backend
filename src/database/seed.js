@@ -46,7 +46,45 @@ const main = async () => {
     }
   });
 
-  console.log("Seed completed: roles and super admin are ready.");
+  const agents = await prisma.agent.findMany();
+
+  for (const agent of agents) {
+    await prisma.agentPermission.upsert({
+      where: { agentId: agent.id },
+      create: {
+        agentId: agent.id,
+        canBookPackages: false,
+        canBookHotels: false,
+        canBookCars: false,
+        canBookBikes: false
+      },
+      update: {}
+    });
+
+    await prisma.agentCommissionRule.upsert({
+      where: { agentId: agent.id },
+      create: {
+        agentId: agent.id,
+        packageCommissionType: "PERCENTAGE",
+        packageCommissionValue: 0,
+        hotelCommissionType: "PERCENTAGE",
+        hotelCommissionValue: 0,
+        carCommissionType: "PERCENTAGE",
+        carCommissionValue: 0,
+        bikeCommissionType: "PERCENTAGE",
+        bikeCommissionValue: 0
+      },
+      update: {}
+    });
+
+    await prisma.agentWallet.upsert({
+      where: { agentId: agent.id },
+      create: { agentId: agent.id },
+      update: {}
+    });
+  }
+
+  console.log("Seed completed: roles, super admin, and agent defaults are ready.");
 };
 
 main()

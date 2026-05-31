@@ -3,6 +3,7 @@ const prisma = require("../../config/prisma");
 const env = require("../../config/env");
 const { getRazorpayClient } = require("../../config/razorpay");
 const { AppError } = require("../../utils/errors");
+const { approveCommissionTransaction } = require("../agentManagement/agentManagement.service");
 
 const getBooking = async ({ bookingType, bookingId }) => {
   if (bookingType === "PACKAGE") return prisma.packageBooking.findUnique({ where: { id: bookingId } });
@@ -48,20 +49,31 @@ const verifyPayment = async ({ razorpayOrderId, razorpayPaymentId, razorpaySigna
     throw new AppError("Invalid Razorpay signature.", 400);
   }
 
-  const payment = await prisma.payment.update({
-    where: { razorpayOrderId },
-    data: {
-      razorpayPaymentId,
-      status: "PAID"
+  return prisma.$transaction(async (tx) => {
+    const payment = await tx.payment.update({
+      where: { razorpayOrderId },
+      data: {
+        razorpayPaymentId,
+        status: "PAID"
+      }
+    });
+
+    const bookingUpdate = { paymentStatus: "PAID", bookingStatus: "CONFIRMED" };
+    if (payment.packageBookingId) {
+      await tx.packageBooking.update({ where: { id: payment.packageBookingId }, data: bookingUpdate });
+      await approveCommissionTransaction({ bookingId: payment.packageBookingId, tx });
     }
+    if (payment.hotelBookingId) {
+      await tx.hotelBooking.update({ where: { id: payment.hotelBookingId }, data: bookingUpdate });
+      await approveCommissionTransaction({ bookingId: payment.hotelBookingId, tx });
+    }
+    if (payment.vehicleBookingId) {
+      await tx.vehicleBooking.update({ where: { id: payment.vehicleBookingId }, data: bookingUpdate });
+      await approveCommissionTransaction({ bookingId: payment.vehicleBookingId, tx });
+    }
+
+    return payment;
   });
-
-  const bookingUpdate = { paymentStatus: "PAID", bookingStatus: "CONFIRMED" };
-  if (payment.packageBookingId) await prisma.packageBooking.update({ where: { id: payment.packageBookingId }, data: bookingUpdate });
-  if (payment.hotelBookingId) await prisma.hotelBooking.update({ where: { id: payment.hotelBookingId }, data: bookingUpdate });
-  if (payment.vehicleBookingId) await prisma.vehicleBooking.update({ where: { id: payment.vehicleBookingId }, data: bookingUpdate });
-
-  return payment;
 };
 
 const transactions = () => prisma.payment.findMany({ orderBy: { createdAt: "desc" }, include: { refunds: true } });

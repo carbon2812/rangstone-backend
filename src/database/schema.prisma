@@ -250,7 +250,7 @@ model Captain {
 
 model TicketVerification {
   id         String         @id @default(cuid())
-  bookingId  String         @map("booking_id")
+  bookingId  String         @unique @map("booking_id")
   booking    PackageBooking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
   captainId  String         @map("captain_id")
   captain    Captain        @relation(fields: [captainId], references: [id], onDelete: Cascade)

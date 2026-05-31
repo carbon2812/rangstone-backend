@@ -1,140 +1,36 @@
-# Custom OTP Authentication Backend
+# Rangstone Tourism Backend
 
-Production-ready Express.js backend for a Flutter app using Fast2SMS WhatsApp OTP, Firebase Admin SDK custom tokens, Firestore OTP storage, and Swagger documentation.
+Production-ready Node.js backend for Rangstone Tourism using Express, PostgreSQL, Prisma, JWT access and refresh tokens, Firebase Storage uploads, Razorpay payments, RBAC, Joi validation, Helmet, CORS, rate limiting, and Swagger docs.
 
-## Features
+## Modules
 
-- Send WhatsApp OTP using Fast2SMS.
-- Verify OTP with expiry and max-attempt support.
-- Generate Firebase custom token for Flutter login.
-- Swagger UI at `/api-docs`.
-- Centralized validation and error handling.
-- Environment-based configuration.
+- Auth: OTP, register, login, refresh token rotation, logout, profile, new/existing user check.
+- Users: create, update, delete, block/unblock, role updates, activity logs.
+- Packages: package CRUD, trip dates, pickup points, Firebase Storage images, captain assignment.
+- Bookings: package, hotel, and vehicle bookings, ticket generation, cancellation, booking history.
+- Captains: assigned trips, ticket verification, boarded/not-boarded marking.
+- Agents: referral code, bookings, commission history, monthly payout calculation.
+- Hotels: hotel CRUD, rooms, room photos, booking support.
+- Vehicles: car, bike, scooter rental CRUD, booking and rent calculation.
+- Payments: Razorpay order creation, verification, transactions, refunds.
+- Reviews: package, hotel, vehicle reviews with admin hide/delete.
+- Dashboard: users, bookings, revenue, payouts, active inventory, recent bookings, revenue graph data.
 
-## Installation
+## Setup
 
 ```bash
 npm install
-```
-
-## Environment Setup
-
-Copy `.env.example` to `.env` and fill the values:
-
-```env
-PORT=5000
-NODE_ENV=development
-API_BASE_URL=http://localhost:5000
-FIREBASE_SERVICE_ACCOUNT_PATH=./firebase-service-account.json
-FIREBASE_SERVICE_ACCOUNT_JSON=
-FIREBASE_SERVICE_ACCOUNT_BASE64=
-FIREBASE_CLIENT_EMAIL=
-FIREBASE_PRIVATE_KEY=
-FAST2SMS_API_KEY=
-MESSAGE_ID=
-PHONE_NUMBER_ID=
-FAST2SMS_WHATSAPP_API_URL=https://www.fast2sms.com/dev/whatsapp
-OTP_EXPIRY_MINUTES=5
-OTP_LENGTH=6
-OTP_MAX_ATTEMPTS=5
-TRUST_PROXY=false
-API_RATE_LIMIT_WINDOW_MINUTES=15
-API_RATE_LIMIT_MAX_REQUESTS=100
-OTP_SEND_RATE_LIMIT_WINDOW_MINUTES=15
-OTP_SEND_RATE_LIMIT_MAX_REQUESTS=5
-OTP_VERIFY_RATE_LIMIT_WINDOW_MINUTES=15
-OTP_VERIFY_RATE_LIMIT_MAX_REQUESTS=10
-```
-
-## Firebase Setup
-
-1. Open Firebase Console.
-2. Create or select your Firebase project.
-3. Enable Authentication in Firebase.
-4. Go to Project Settings > Service accounts.
-5. Generate a new private key.
-6. Replace `firebase-service-account.json` with the downloaded service account file.
-7. Create a Firestore database.
-
-For local development, `FIREBASE_SERVICE_ACCOUNT_PATH=./firebase-service-account.json`
-is the simplest option. For Render, do not rely on that local file unless you
-upload it as a secret file. Add one of these environment variable options in
-Render instead:
-
-- `FIREBASE_SERVICE_ACCOUNT_JSON`: the whole Firebase service account JSON on one line.
-- `FIREBASE_SERVICE_ACCOUNT_BASE64`: base64 of the whole service account JSON.
-- `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, and `FIREBASE_PRIVATE_KEY`: individual fields from the service account. Keep the private key newlines as `\n` if Render stores it on one line.
-
-On Windows PowerShell, you can generate the base64 value from your local file:
-
-```powershell
-[Convert]::ToBase64String([IO.File]::ReadAllBytes("firebase-service-account.json"))
-```
-
-After updating Render environment variables, redeploy and check:
-
-```text
-GET https://rangstone-backend.onrender.com/health
-```
-
-The response should include `"firebase":{"configured":true}` before
-`POST /api/auth/send-otp` can succeed.
-
-This backend creates Firebase custom tokens with:
-
-```js
-const firebaseToken = await admin.auth().createCustomToken(uid, {
-  phone: phone,
-  role: "customer"
-});
-```
-
-## Fast2SMS Setup
-
-1. Create or open your Fast2SMS account.
-2. Configure a WhatsApp template such as:
-
-```text
-Your OTP is {{1}}
-```
-
-3. Get your API key, `message_id`, and `phone_number_id`.
-4. Add them to `.env`.
-
-The backend sends the OTP as the first template variable. Internally this maps to:
-
-```json
-{
-  "1": "123456"
-}
-```
-
-Fast2SMS simple WhatsApp template delivery expects this as `variables_values`, so a single OTP variable is sent as `123456`.
-
-## Run Commands
-
-Development:
-
-```bash
+copy .env.example .env
+npm run db:generate
+npm run db:migrate
+npm run db:seed
 npm run dev
 ```
 
-Production:
-
-```bash
-npm start
-```
-
-Server runs on:
+Swagger runs at:
 
 ```text
-https://rangstone-backend.onrender.com
-```
-
-Swagger documentation:
-
-```text
-https://rangstone-backend.onrender.com/api-docs
+http://localhost:5000/api-docs
 ```
 
 Health check:
@@ -143,144 +39,71 @@ Health check:
 GET /health
 ```
 
-## API Usage
+## Environment
 
-### Send OTP
+Use `.env.example` as the source of required configuration. Do not commit real `.env` files or Firebase service account JSON.
 
-```http
-POST /api/auth/send-otp
-Content-Type: application/json
+For local OTP testing, set:
+
+```env
+OTP_DELIVERY_MODE=log
 ```
 
-Request:
+That logs OTPs to the server console instead of calling Fast2SMS.
+
+## Firebase Storage
+
+Firebase is used only for image/file uploads. Configure one of:
+
+- `FIREBASE_SERVICE_ACCOUNT_JSON`
+- `FIREBASE_SERVICE_ACCOUNT_BASE64`
+- `FIREBASE_SERVICE_ACCOUNT_PATH`
+- `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, and `FIREBASE_PRIVATE_KEY`
+
+Also set:
+
+```env
+FIREBASE_STORAGE_BUCKET=your-project.appspot.com
+```
+
+## Seeded Login
+
+`npm run db:seed` creates all roles and a super admin:
 
 ```json
 {
-  "phone": "7376263360"
+  "phoneNumber": "9999999999",
+  "password": "ChangeMe123!"
 }
 ```
 
-Response:
+Change these values in `.env` before production.
 
-```json
-{
-  "success": true,
-  "message": "OTP sent successfully"
-}
-```
-
-### Verify OTP
-
-```http
-POST /api/auth/verify-otp
-Content-Type: application/json
-```
-
-Request:
-
-```json
-{
-  "phone": "7376263360",
-  "otp": "123456"
-}
-```
-
-Response:
-
-```json
-{
-  "success": true,
-  "message": "OTP verified successfully",
-  "firebaseToken": "CUSTOM_FIREBASE_TOKEN",
-  "uid": "phone_7376263360"
-}
-```
-
-After successful verification, the OTP document is deleted from Firestore.
-
-### Get Fast2SMS Wallet Balance
-
-```http
-GET /api/auth/wallet
-```
-
-Response:
+## API Response Shape
 
 ```json
 {
   "success": true,
-  "message": "Fast2SMS wallet balance fetched successfully",
-  "wallet": {
-    "return": true,
-    "wallet": "100.00"
-  }
+  "message": "Operation successful",
+  "data": {}
 }
 ```
 
-## Flutter Login Example
+## Scripts
 
-Use the `firebaseToken` returned by `/api/auth/verify-otp`:
+- `npm start`: run production server.
+- `npm run dev`: run with nodemon.
+- `npm run db:generate`: generate Prisma client.
+- `npm run db:migrate`: run development migration.
+- `npm run db:migrate:prod`: deploy migrations.
+- `npm run db:seed`: seed roles and super admin.
+- `npm run db:studio`: open Prisma Studio.
+- `npm run postman`: generate `Rangstone-Tourism.postman_collection.json` from Swagger paths.
 
-```dart
-final credential = await FirebaseAuth.instance
-    .signInWithCustomToken(firebaseToken);
-```
+## Security Notes
 
-Suggested Flutter flow:
-
-```dart
-// 1. Call POST /api/auth/send-otp with phone.
-// 2. Ask the user to enter the OTP.
-// 3. Call POST /api/auth/verify-otp with phone and otp.
-// 4. Sign in with the returned Firebase custom token.
-final credential = await FirebaseAuth.instance
-    .signInWithCustomToken(firebaseToken);
-
-final user = credential.user;
-```
-
-## Firestore Collections
-
-### `otp_verifications/{phone_uid}`
-
-Temporary OTP verification document:
-
-```json
-{
-  "phone": "7376263360",
-  "otpHash": "sha256_hash",
-  "expiresAt": "timestamp",
-  "attempts": 0,
-  "createdAt": "serverTimestamp",
-  "updatedAt": "serverTimestamp"
-}
-```
-
-## Status Codes
-
-- `200`: Success.
-- `400`: Validation error or missing required field.
-- `401`: Invalid, expired, or over-attempted OTP.
-- `404`: OTP or route not found.
-- `429`: Rate limit exceeded.
-- `500`: Configuration or server error.
-
-## Rate Limiting
-
-The backend uses `express-rate-limit`.
-
-- Global API limit: `100` requests per `15` minutes by default.
-- Send OTP limit: `5` requests per `15` minutes by default.
-- Verify OTP limit: `10` requests per `15` minutes by default.
-
-Set `TRUST_PROXY=true` when deploying behind a trusted reverse proxy such as Nginx, Render, Railway, or a load balancer.
-
-## Production Notes
-
-- Keep `.env` and `firebase-service-account.json` out of source control.
-- Configure Firebase credentials in Render environment variables or a Render secret file.
-- Use HTTPS in production.
+- Use strong JWT secrets in production.
+- Keep Firebase service accounts and `.env` outside Git.
 - Set `NODE_ENV=production`.
-- Restrict CORS to your app or trusted domains when deploying.
-- Monitor failed OTP attempts and Fast2SMS delivery responses.
-- Store only hashed OTP values, as implemented here.
+- Restrict `CORS_ORIGIN` to trusted frontend origins.
+- Configure HTTPS and `TRUST_PROXY=true` behind a trusted proxy.

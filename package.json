@@ -1,38 +1,57 @@
 {
-  "name": "custom-otp-auth-backend",
+  "name": "rangstone-tourism-backend",
   "version": "1.0.0",
-  "description": "Production-ready Node.js backend for WhatsApp OTP authentication with Firebase custom tokens.",
+  "description": "Production-ready Node.js backend for Rangstone Tourism – travel packages, hotels, vehicle rentals, agent commissions, and Razorpay payments.",
   "main": "src/server.js",
   "type": "commonjs",
   "scripts": {
     "start": "node src/server.js",
-    "dev": "nodemon src/server.js"
+    "dev": "nodemon src/server.js",
+    "db:generate": "npx prisma generate --schema=src/database/schema.prisma",
+    "db:migrate": "npx prisma migrate dev --schema=src/database/schema.prisma",
+    "db:migrate:prod": "npx prisma migrate deploy --schema=src/database/schema.prisma",
+    "db:seed": "node src/database/seed.js",
+    "db:reset": "npx prisma migrate reset --schema=src/database/schema.prisma --force",
+    "db:studio": "npx prisma studio --schema=src/database/schema.prisma",
+    "postman": "node src/swagger/postmanCollection.js"
   },
   "keywords": [
     "express",
-    "firebase",
-    "firestore",
+    "postgresql",
+    "prisma",
+    "jwt",
     "otp",
-    "fast2sms",
-    "whatsapp",
+    "razorpay",
     "swagger",
-    "flutter"
+    "tourism"
   ],
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@prisma/client": "^7.8.0",
     "axios": "^1.7.9",
+    "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "express-rate-limit": "^7.5.0",
-    "firebase-admin": "^13.0.2",
+    "firebase-admin": "^13.6.0",
     "helmet": "^8.0.0",
+    "joi": "^18.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "multer": "^2.1.1",
+    "pg": "^8.21.0",
+    "razorpay": "^2.9.6",
     "swagger-autogen": "^2.23.7",
-    "swagger-ui-express": "^5.0.1"
+    "swagger-ui-express": "^5.0.1",
+    "uuid": "^14.0.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.9"
+    "nodemon": "^3.1.9",
+    "prisma": "^7.8.0"
+  },
+  "prisma": {
+    "schema": "src/database/schema.prisma"
   },
   "engines": {
     "node": ">=18.0.0"

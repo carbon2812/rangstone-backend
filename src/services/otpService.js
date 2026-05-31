@@ -1,51 +1,43 @@
 const axios = require("axios");
-const { ensureFirebase } = require("../config/firebase");
-const { generateOtp, hashOtp } = require("../utils/otpGenerator");
+const prisma = require("../config/prisma");
+const env = require("../config/env");
+const { randomDigits } = require("../utils/codeGenerator");
+const { hashOtp } = require("../utils/otpGenerator");
+const { AppError } = require("../utils/errors");
 
 const normalizePhone = (phone) => String(phone || "").replace(/\D/g, "");
 
-const buildOtpDocId = (phone) => `phone_${normalizePhone(phone)}`;
-
-const getOtpExpiryDate = () => {
-  const expiryMinutes = Number(process.env.OTP_EXPIRY_MINUTES) || 5;
-  return new Date(Date.now() + expiryMinutes * 60 * 1000);
-};
+const getOtpExpiryDate = () => new Date(Date.now() + env.otpExpiryMinutes * 60 * 1000);
 
 const ensureFast2SmsConfig = () => {
-  const required = ["FAST2SMS_API_KEY", "MESSAGE_ID", "PHONE_NUMBER_ID"];
-  const missing = required.filter((key) => !process.env[key]);
+  const missing = [];
+  if (!env.fast2SmsApiKey) missing.push("FAST2SMS_API_KEY");
+  if (!env.messageId) missing.push("MESSAGE_ID");
+  if (!env.phoneNumberId) missing.push("PHONE_NUMBER_ID");
 
   if (missing.length) {
-    const error = new Error(`Missing Fast2SMS configuration: ${missing.join(", ")}`);
-    error.statusCode = 500;
-    throw error;
-  }
-};
-
-const ensureFast2SmsApiKey = () => {
-  if (!process.env.FAST2SMS_API_KEY) {
-    const error = new Error("Missing Fast2SMS configuration: FAST2SMS_API_KEY");
-    error.statusCode = 500;
-    throw error;
+    throw new AppError(`Missing Fast2SMS configuration: ${missing.join(", ")}`, 500);
   }
 };
 
 const sendOtpViaFast2Sms = async ({ phone, otp }) => {
+  if (process.env.OTP_DELIVERY_MODE === "log") {
+    console.log(`OTP for ${phone}: ${otp}`);
+    return { mocked: true };
+  }
+
   ensureFast2SmsConfig();
 
-  const apiUrl = process.env.FAST2SMS_WHATSAPP_API_URL || "https://www.fast2sms.com/dev/whatsapp";
-  const variables = { "1": otp };
-
-  const response = await axios.get(apiUrl, {
+  const response = await axios.get(env.fast2SmsWhatsappApiUrl, {
     headers: {
       accept: "application/json"
     },
     params: {
-      authorization: process.env.FAST2SMS_API_KEY,
-      message_id: process.env.MESSAGE_ID,
-      phone_number_id: process.env.PHONE_NUMBER_ID,
+      authorization: env.fast2SmsApiKey,
+      message_id: env.messageId,
+      phone_number_id: env.phoneNumberId,
       numbers: normalizePhone(phone),
-      variables_values: Object.values(variables).join("|")
+      variables_values: otp
     },
     timeout: 15000
   });
@@ -54,14 +46,16 @@ const sendOtpViaFast2Sms = async ({ phone, otp }) => {
 };
 
 const getFast2SmsWalletBalance = async () => {
-  ensureFast2SmsApiKey();
+  if (!env.fast2SmsApiKey) {
+    throw new AppError("Missing Fast2SMS configuration: FAST2SMS_API_KEY", 500);
+  }
 
   const response = await axios.get("https://www.fast2sms.com/dev/wallet", {
     headers: {
       accept: "application/json"
     },
     params: {
-      authorization: process.env.FAST2SMS_API_KEY
+      authorization: env.fast2SmsApiKey
     },
     timeout: 15000
   });
@@ -70,68 +64,56 @@ const getFast2SmsWalletBalance = async () => {
 };
 
 const createAndSendOtp = async (phone) => {
-  const { admin, db } = ensureFirebase();
-  const otpCollection = db.collection("otp_verifications");
-  const normalizedPhone = normalizePhone(phone);
-  const otp = generateOtp();
-  const expiresAt = getOtpExpiryDate();
-  const docId = buildOtpDocId(normalizedPhone);
+  const phoneNumber = normalizePhone(phone);
+  const otp = randomDigits(env.otpLength);
 
-  await otpCollection.doc(docId).set({
-    phone: normalizedPhone,
-    otpHash: hashOtp(otp),
-    expiresAt: admin.firestore.Timestamp.fromDate(expiresAt),
-    attempts: 0,
-    createdAt: admin.firestore.FieldValue.serverTimestamp(),
-    updatedAt: admin.firestore.FieldValue.serverTimestamp()
+  await prisma.otpVerification.upsert({
+    where: { phoneNumber },
+    create: {
+      phoneNumber,
+      otpHash: hashOtp(otp),
+      attempts: 0,
+      expiresAt: getOtpExpiryDate()
+    },
+    update: {
+      otpHash: hashOtp(otp),
+      attempts: 0,
+      expiresAt: getOtpExpiryDate()
+    }
   });
 
-  await sendOtpViaFast2Sms({ phone: normalizedPhone, otp });
+  await sendOtpViaFast2Sms({ phone: phoneNumber, otp });
 };
 
 const verifyStoredOtp = async ({ phone, otp }) => {
-  const { admin, db } = ensureFirebase();
-  const otpCollection = db.collection("otp_verifications");
-  const normalizedPhone = normalizePhone(phone);
-  const docRef = otpCollection.doc(buildOtpDocId(normalizedPhone));
-  const doc = await docRef.get();
+  const phoneNumber = normalizePhone(phone);
+  const record = await prisma.otpVerification.findUnique({
+    where: { phoneNumber }
+  });
 
-  if (!doc.exists) {
-    const error = new Error("OTP not found. Please request a new OTP.");
-    error.statusCode = 404;
-    throw error;
+  if (!record) {
+    throw new AppError("OTP not found. Please request a new OTP.", 404);
   }
 
-  const data = doc.data();
-  const maxAttempts = Number(process.env.OTP_MAX_ATTEMPTS) || 5;
-
-  if (data.expiresAt.toDate().getTime() < Date.now()) {
-    await docRef.delete();
-    const error = new Error("OTP expired. Please request a new OTP.");
-    error.statusCode = 401;
-    throw error;
+  if (record.expiresAt.getTime() < Date.now()) {
+    await prisma.otpVerification.delete({ where: { phoneNumber } });
+    throw new AppError("OTP expired. Please request a new OTP.", 401);
   }
 
-  if ((data.attempts || 0) >= maxAttempts) {
-    await docRef.delete();
-    const error = new Error("Too many invalid attempts. Please request a new OTP.");
-    error.statusCode = 401;
-    throw error;
+  if (record.attempts >= env.otpMaxAttempts) {
+    await prisma.otpVerification.delete({ where: { phoneNumber } });
+    throw new AppError("Too many invalid attempts. Please request a new OTP.", 401);
   }
 
-  if (data.otpHash !== hashOtp(otp)) {
-    await docRef.update({
-      attempts: admin.firestore.FieldValue.increment(1),
-      updatedAt: admin.firestore.FieldValue.serverTimestamp()
+  if (record.otpHash !== hashOtp(otp)) {
+    await prisma.otpVerification.update({
+      where: { phoneNumber },
+      data: { attempts: { increment: 1 } }
     });
-
-    const error = new Error("Invalid OTP.");
-    error.statusCode = 401;
-    throw error;
+    throw new AppError("Invalid OTP.", 401);
   }
 
-  await docRef.delete();
-
+  await prisma.otpVerification.delete({ where: { phoneNumber } });
   return true;
 };
 
@@ -139,6 +121,5 @@ module.exports = {
   createAndSendOtp,
   verifyStoredOtp,
   getFast2SmsWalletBalance,
-  normalizePhone,
-  buildOtpDocId
+  normalizePhone
 };
